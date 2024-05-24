@@ -1,5 +1,7 @@
+import { Home } from '@/views/Home';
+
 export function App(){
-  return(
-    <h1>Upload AI</h1>
-  )
+ return(
+  <Home/>
+ )
 }
