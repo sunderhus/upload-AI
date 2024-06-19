@@ -6,8 +6,13 @@ import { FileVideo, Upload } from "lucide-react";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import { api } from "@/lib/axios";
 
-export function VideoInputForm() {
+export function VideoInputForm({
+  updateTranscription,
+}: {
+  updateTranscription: (transcription: string) => void;
+}) {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const promptInputRef = useRef<HTMLTextAreaElement>(null);
   const handleFileSelected = (event: ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +101,17 @@ export function VideoInputForm() {
 
     const audioFile = await convertVideoToAudio(videoFile);
 
-    return audioFile;
+    const data = new FormData();
+    data.append("file", audioFile);
+
+    const response = await api.post("/video", data);
+    const videoId = response.data.video.id;
+
+    const result = await api.post(`/video/${videoId}/transcription`, {
+      prompt,
+    });
+
+    updateTranscription(result.data.transcription);
   };
 
   return (
